@@ -1,6 +1,7 @@
 #include <iostream>
 #include <fstream>
 #include <sstream>
+#include <cstring>
 using namespace std;
 
 struct planta {
@@ -11,30 +12,30 @@ struct planta {
     char classe; //M (monocotiletonea) ou D (dicotiledonea)
 };
 
-int main (){
-    ifstream arquivo("arquivo.csv");
-    int tam = 40;
-    string linha="";
-    planta *plantas = new planta[tam];
-    const char delim = ','; //delimitador de campos 
+//apenas imprimir menu
+void menu() {
+    cout << "Menu de Opções:" << endl;
+    cout << "1 - Inserir novo elemento" << endl;
+    cout << "2 - Remover um elemento" << endl;
+    cout << "3 - Buscar um registro" << endl;
+    cout << "4 - Imprimir arquivo" << endl;
+    cout << "5 - Ordenar dados" << endl;
+    cout << "0 - Sair" << endl;
+    cout << "Escolha uma opção: ";
+}
 
-    //verifica se o arquivo existe
-    if (!arquivo) {
-        cout << "Erro ao abrir o arquivo." << endl;
-        return 1;
-    }
-
-    getline(arquivo, linha); // ler e ignorar a primeira linha do arquivo (cabeçalho)
-
-    //ler dados e armazenar no vetor:
+//ler dados do arquivo e preencher o vetor
+void lerDados(ifstream &arquivo, planta *&plantas, int &tam) {
+    string linha;
+    const char delim = ',';
+    
     for (int i = 0; i < tam; i++) {
         if (getline(arquivo, linha)) {
             stringstream input(linha);
-
             getline(input, plantas[i].nomePopular, delim);
             getline(input, plantas[i].nomeCientifico, delim);
             input >> plantas[i].nCotiledones;
-            input.ignore(); // ignorar o delimitador
+            input.ignore();
             input >> plantas[i].nPetalas;
             input.ignore(); 
             input >> plantas[i].classe;
@@ -43,6 +44,47 @@ int main (){
             break;
         }
     }
+}
+
+//aumentar o tamanho do vetor
+void aumentarVetor(planta *&plantas, int &tam) {
+    int novoTam = tam + 10;
+    planta *novoPlantas = new planta[novoTam];
+    memcpy(novoPlantas, plantas, sizeof(planta) * tam);
+    delete[] plantas;
+    plantas = novoPlantas;
+    tam = novoTam;
+}
+
+//imprimir vetor
+void imprimirVetor(planta *plantas, int tam) {
+    for (int i = 0; i < tam; i++) {
+        cout << "Planta " << i + 1 << ": "
+             << plantas[i].nomePopular << ", "
+             << plantas[i].nomeCientifico << ", "
+             << plantas[i].nCotiledones << ", "
+             << plantas[i].nPetalas << ", "
+             << plantas[i].classe << endl;
+    }
+}
+
+int main (){
+    ifstream arquivo("arquivo.csv");
+    int tam = 40;
+    string linha="";
+    planta *plantas = new planta[tam];
+
+    //verifica se o arquivo existe
+    if (!arquivo) {
+        cout << "Erro ao abrir o arquivo." << endl;
+        return 1;
+    }
+    getline(arquivo, linha); // ler e ignorar a primeira linha do arquivo
+    lerDados(arquivo, plantas, tam);
+
+    // aumenta o vetor em +10 e continua preenchendo
+    aumentarVetor(plantas, tam);
+    lerDados(arquivo, plantas, tam);
     	
     int opc;
     do {
@@ -75,19 +117,8 @@ int main (){
 
     } while (opc!=0);
 
+    imprimirVetor(plantas, tam);
 
     delete [] plantas;
-    return;
-}
-
-//apenas imprimir menu
-void menu() {
-    cout << "Menu de Opcoes:" << endl;
-    cout << "1 - Inserir novo elemento" << endl;
-    cout << "2 - Remover um elemento" << endl;
-    cout << "3 - Buscar um registro" << endl;
-    cout << "4 - Imprimir arquivo" << endl;
-    cout << "5 - Ordenar dados" << endl;
-    cout << "0 - Sair" << endl;
-    cout << "Escolha uma opcao: ";
+    return 0;
 }
