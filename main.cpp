@@ -28,8 +28,9 @@ void menu() {
 void lerDados(ifstream &arquivo, planta *&plantas, int &tam) {
     string linha;
     const char delim = ',';
+    int i;
     
-    for (int i = 0; i < tam; i++) {
+    for (i = 0; i < tam; i++) {
         if (getline(arquivo, linha)) {
             stringstream input(linha);
             getline(input, plantas[i].nomePopular, delim);
@@ -44,6 +45,8 @@ void lerDados(ifstream &arquivo, planta *&plantas, int &tam) {
             break;
         }
     }
+    i=tam;
+
 }
 
 //aumentar o tamanho do vetor
@@ -80,7 +83,23 @@ int main (){
         return 1;
     }
     getline(arquivo, linha); // ler e ignorar a primeira linha do arquivo
-    lerDados(arquivo, plantas, tam);
+    const char delim = ',';
+    
+    for (int i = 0; i < tam; i++) {
+        if (getline(arquivo, linha)) {
+            stringstream input(linha);
+            getline(input, plantas[i].nomePopular, delim);
+            getline(input, plantas[i].nomeCientifico, delim);
+            input >> plantas[i].nCotiledones;
+            input.ignore();
+            input >> plantas[i].nPetalas;
+            input.ignore(); 
+            input >> plantas[i].classe;
+        } else {
+            cout << "Erro ao ler dados ou fim do arquivo atingido." << endl;
+            break;
+        }
+    }
 
     // aumenta o vetor em +10 e continua preenchendo
     aumentarVetor(plantas, tam);
