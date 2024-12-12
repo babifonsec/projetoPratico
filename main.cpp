@@ -35,6 +35,30 @@ void aumentarVetor(planta *&plantas, int &tam) {
     tam = novoTam;
 }
 
+// Função para ler dados do arquivo e preencher o vetor
+void lerDados(ifstream &arquivo, planta *&plantas, int &tam) {
+    string linha;
+    const char delim = ',';
+    
+    for (int i = 0; i < tam; i++) {
+        if (getline(arquivo, linha)) {
+            if(plantas[i].nomePopular.empty()) {
+            stringstream input(linha);
+            getline(input, plantas[i].nomePopular, delim);
+            getline(input, plantas[i].nomeCientifico, delim);
+            input >> plantas[i].nCotiledones;
+            input.ignore();
+            input >> plantas[i].nPetalas;
+            input.ignore(); 
+            input >> plantas[i].classe;
+            } else {
+            cout << "Erro ao ler dados ou fim do arquivo atingido." << endl;
+            break;
+            }
+        }
+    }
+}
+
 //imprimir vetor
 void imprimirVetor(planta *plantas, int tam) {
     for (int i = 0; i < tam; i++) {
@@ -52,30 +76,18 @@ int main (){
     int tam = 40;
     string linha="";
     planta *plantas = new planta[tam];
-    const char delim = ',';
-
+    
     //verifica se o arquivo existe
     if (!arquivo) {
         cout << "Erro ao abrir o arquivo." << endl;
         return 1;
     }
+
     getline(arquivo, linha); // ler e ignorar a primeira linha do arquivo
-    
-    int i = 0;
-    while (getline(arquivo, linha)) {
-        if (i == tam) {
-            aumentarVetor(plantas, tam);
-        }
-        stringstream input(linha);
-        getline(input, plantas[i].nomePopular, delim);
-        getline(input, plantas[i].nomeCientifico, delim);
-        input >> plantas[i].nCotiledones;
-        input.ignore();
-        input >> plantas[i].nPetalas;
-        input.ignore();
-        input >> plantas[i].classe;
-        i++;
-    }
+    lerDados(arquivo, plantas, tam);
+    aumentarVetor(plantas, tam);  //aumentar o vetor e continuar preenchendo
+    lerDados(arquivo, plantas, tam);
+
 
     int opc;
     do {
@@ -93,7 +105,7 @@ int main (){
             //chamada buscar registro
         break;
         case 4:
-            //chamada da funcao de imprimir arquivo
+            imprimirVetor(plantas, tam);
             break;
         case 5:
             //chamda da funcao ordenar dados;
@@ -107,8 +119,6 @@ int main (){
         }
 
     } while (opc!=0);
-
-    imprimirVetor(plantas, tam);
 
     delete [] plantas;
     return 0;
