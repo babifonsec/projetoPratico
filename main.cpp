@@ -24,30 +24,6 @@ void menu() {
     cout << "Escolha uma opção: ";
 }
 
-//ler dados do arquivo e preencher o vetor
-void lerDados(ifstream &arquivo, planta *&plantas, int &tam) {
-    string linha;
-    const char delim = ',';
-    int i;
-    
-    for (i = 0; i < tam; i++) {
-        if (getline(arquivo, linha)) {
-            stringstream input(linha);
-            getline(input, plantas[i].nomePopular, delim);
-            getline(input, plantas[i].nomeCientifico, delim);
-            input >> plantas[i].nCotiledones;
-            input.ignore();
-            input >> plantas[i].nPetalas;
-            input.ignore(); 
-            input >> plantas[i].classe;
-        } else {
-            cout << "Erro ao ler dados ou fim do arquivo atingido." << endl;
-            break;
-        }
-    }
-    i=tam;
-
-}
 
 //aumentar o tamanho do vetor
 void aumentarVetor(planta *&plantas, int &tam) {
@@ -76,6 +52,7 @@ int main (){
     int tam = 40;
     string linha="";
     planta *plantas = new planta[tam];
+    const char delim = ',';
 
     //verifica se o arquivo existe
     if (!arquivo) {
@@ -83,28 +60,23 @@ int main (){
         return 1;
     }
     getline(arquivo, linha); // ler e ignorar a primeira linha do arquivo
-    const char delim = ',';
     
-    for (int i = 0; i < tam; i++) {
-        if (getline(arquivo, linha)) {
-            stringstream input(linha);
-            getline(input, plantas[i].nomePopular, delim);
-            getline(input, plantas[i].nomeCientifico, delim);
-            input >> plantas[i].nCotiledones;
-            input.ignore();
-            input >> plantas[i].nPetalas;
-            input.ignore(); 
-            input >> plantas[i].classe;
-        } else {
-            cout << "Erro ao ler dados ou fim do arquivo atingido." << endl;
-            break;
+    int i = 0;
+    while (getline(arquivo, linha)) {
+        if (i == tam) {
+            aumentarVetor(plantas, tam);
         }
+        stringstream input(linha);
+        getline(input, plantas[i].nomePopular, delim);
+        getline(input, plantas[i].nomeCientifico, delim);
+        input >> plantas[i].nCotiledones;
+        input.ignore();
+        input >> plantas[i].nPetalas;
+        input.ignore();
+        input >> plantas[i].classe;
+        i++;
     }
 
-    // aumenta o vetor em +10 e continua preenchendo
-    aumentarVetor(plantas, tam);
-    lerDados(arquivo, plantas, tam);
-    	
     int opc;
     do {
         menu();
