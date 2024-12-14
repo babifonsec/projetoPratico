@@ -26,21 +26,22 @@ void menu() {
 
 
 //aumentar o tamanho do vetor
-void aumentarVetor(planta *&plantas, int &tam) {
+void aumentarVetor(planta *&plantas, int &tam, int &icremento) {
     int novoTam = tam + 10;
     planta *novoPlantas = new planta[novoTam];
     memcpy(novoPlantas, plantas, sizeof(planta) * tam);
     delete[] plantas;
     plantas = novoPlantas;
+    icremento = tam;
     tam = novoTam;
 }
 
-// Função para ler dados do arquivo e preencher o vetor
-void lerDados(ifstream &arquivo, planta *&plantas, int &tam) {
+//função para ler dados do arquivo e preencher o vetor
+void lerDados(ifstream &arquivo, planta *&plantas, int &tam, int i) {
     string linha;
     const char delim = ',';
     
-    for (int i = 0; i < tam; i++) {
+    for (i; i < tam; i++) {
         if (getline(arquivo, linha)) {
             if(plantas[i].nomePopular.empty()) {
             stringstream input(linha);
@@ -73,10 +74,10 @@ void imprimirVetor(planta *plantas, int tam) {
 
 int main (){
     ifstream arquivo("arquivo.csv");
-    int tam = 40;
+    int tam = 40, icremento=0;
     string linha="";
     planta *plantas = new planta[tam];
-    
+
     //verifica se o arquivo existe
     if (!arquivo) {
         cout << "Erro ao abrir o arquivo." << endl;
@@ -84,9 +85,9 @@ int main (){
     }
 
     getline(arquivo, linha); // ler e ignorar a primeira linha do arquivo
-    lerDados(arquivo, plantas, tam);
-    aumentarVetor(plantas, tam);  //aumentar o vetor e continuar preenchendo
-    lerDados(arquivo, plantas, tam);
+    lerDados(arquivo, plantas, tam, icremento);
+    aumentarVetor(plantas, tam, icremento);  //aumentar o vetor e continuar preenchendo
+    lerDados(arquivo, plantas, tam, icremento);
 
 
     int opc;
