@@ -1,126 +1,107 @@
 #include <iostream>
 #include <fstream>
 #include <sstream>
-#include <cstring>
+
 using namespace std;
 
-struct planta {
-    string nomePopular;
-    string nomeCientifico;
-    int nCotiledones;
-    int nPetalas;
-    char classe; //M (monocotiletonea) ou D (dicotiledonea)
+struct Planta {
+		int id;
+		string nome;
+		string nomeCientifico;	
+		int nCotiledones;
+		int nPetalas;
+		char classe;
 };
 
-//apenas imprimir menu
-void menu() {
-    cout << "Menu de Opções:" << endl;
-    cout << "1 - Inserir novo elemento" << endl;
-    cout << "2 - Remover um elemento" << endl;
-    cout << "3 - Buscar um registro" << endl;
-    cout << "4 - Imprimir arquivo" << endl;
-    cout << "5 - Ordenar dados" << endl;
-    cout << "0 - Sair" << endl;
-    cout << "Escolha uma opção: ";
-}
-
-
-//aumentar o tamanho do vetor
-void aumentarVetor(planta *&plantas, int &tam, int &icremento) {
-    int novoTam = tam + 10;
-    planta *novoPlantas = new planta[novoTam];
-    memcpy(novoPlantas, plantas, sizeof(planta) * tam);
-    delete[] plantas;
-    plantas = novoPlantas;
-    icremento = tam;
-    tam = novoTam;
-}
-
-//função para ler dados do arquivo e preencher o vetor
-void lerDados(ifstream &arquivo, planta *&plantas, int &tam, int i) {
-    string linha;
-    const char delim = ',';
-    
-    for (i; i < tam; i++) {
-        if (getline(arquivo, linha)) {
-            if(plantas[i].nomePopular.empty()) {
-            stringstream input(linha);
-            getline(input, plantas[i].nomePopular, delim);
-            getline(input, plantas[i].nomeCientifico, delim);
-            input >> plantas[i].nCotiledones;
-            input.ignore();
-            input >> plantas[i].nPetalas;
-            input.ignore(); 
-            input >> plantas[i].classe;
-            } else {
-            cout << "Erro ao ler dados ou fim do arquivo atingido." << endl;
-            break;
-            }
-        }
+Planta *alocacao(Planta *vet, int &tam) {
+    int novoTam = tam + 5;
+    Planta *novo = new Planta[novoTam];
+    for (int i = 0; i < tam; ++i) {
+        novo[i] = vet[i];
     }
+    delete[] vet;
+    tam = novoTam;  // Atualiza tam para novo tamanho
+    return novo;
 }
+
+
+Planta *importarCSV(Planta *vet, int &quant, int &tam){
+	string lixo;
+	ifstream arquivo ("arquivo.csv");
+	int i=0;
+	quant=0;
+	
+	getline(arquivo,lixo);
+	while (arquivo >> vet[i].id){
+	arquivo>>lixo;
+	arquivo >> vet[i].nome;
+	arquivo>>lixo;
+	getline(arquivo, vet[i].nomeCientifico, ',');
+	arquivo>>lixo;
+	arquivo>>vet[i].nCotiledones;
+	arquivo>>lixo;
+	arquivo>>vet[i].nPetalas;
+	arquivo>>lixo;
+	arquivo>>vet[i].classe;
+	i++;
+	quant++;
+	if(tam==i){
+		vet=alocacao(vet,tam);
+		}
+	}
+	arquivo.close();
+	cout << "Dados importados com sucesso" << endl;
+    return vet;
+	}
 
 //imprimir vetor
-void imprimirVetor(planta *plantas, int tam) {
+void imprimirVetor(Planta vet[], int tam) {
     for (int i = 0; i < tam; i++) {
         cout << "Planta " << i + 1 << ": "
-             << plantas[i].nomePopular << ", "
-             << plantas[i].nomeCientifico << ", "
-             << plantas[i].nCotiledones << ", "
-             << plantas[i].nPetalas << ", "
-             << plantas[i].classe << endl;
+             << vet[i].nome << ", "
+             << vet[i].nomeCientifico << ", "
+             << vet[i].nCotiledones << ", "
+             << vet[i].nPetalas << ", "
+             << vet[i].classe << endl;
     }
 }
+
+void menu (){
+		cout<< "Escolha uma opção abaixo:" << endl;
+        cout << "Opção 1: Importar dados CSV" << endl;
+        cout << "Opção 2: Busca" << endl;
+        cout << "Opção 3: Inserir dados" << endl;
+        cout << "Opção 4: Listar dados" << endl;
+        cout << "Opção 5: Ordenar" << endl;
+        cout << "Opção 6: Remover" << endl;
+        cout << "Opção 7: Imprimir intervalo de elementos" << endl;
+        cout << "Opção 0: Sair" << endl;	
+}
+
 
 int main (){
-    ifstream arquivo("arquivo.csv");
-    int tam = 40, icremento=0;
-    string linha="";
-    planta *plantas = new planta[tam];
-
-    //verifica se o arquivo existe
-    if (!arquivo) {
-        cout << "Erro ao abrir o arquivo." << endl;
-        return 1;
-    }
-
-    getline(arquivo, linha); // ler e ignorar a primeira linha do arquivo
-    lerDados(arquivo, plantas, tam, icremento);
-    aumentarVetor(plantas, tam, icremento);  //aumentar o vetor e continuar preenchendo
-    lerDados(arquivo, plantas, tam, icremento);
-
-
-    int opc;
-    do {
-        menu();
-        cin>>opc;
-        switch (opc)
-        {
-        case 1:
-            //chamada da funcao de inserir novo elemento
-            break;
-        case 2:
-            //chamada da funcao de remover elemento
-            break;
-        case 3:
-            //chamada buscar registro
-        break;
-        case 4:
-            imprimirVetor(plantas, tam);
-            break;
-        case 5:
-            //chamda da funcao ordenar dados;
-            break;
-        case 0:
-            cout<<"Saindo..."<<endl;
-            break;
-        default:
-            cout<<"Opção inválida"<<endl;
-            break;
-        }
-
-    } while (opc!=0);
-
-    delete [] plantas;
-    return 0;
-}
+	int tam = 40, quant=0, opc;
+	Planta *vet = new Planta [tam];
+	
+	do{
+		menu();
+		cin>>opc;
+		
+		switch(opc){
+			case 1: 
+			importarCSV(vet,quant,tam);
+			break;
+			case 2:
+			break;
+			case 3:
+			break;
+			case 4:
+			imprimirVetor(vet,tam);
+			break;
+			
+		}
+	}while(opc!=0);
+	
+delete [] vet;
+return 0;
+}	
